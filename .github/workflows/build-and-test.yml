@@ -20,15 +20,36 @@ jobs:
       - run: cargo build --locked
       - run: cargo test
       - uses: dtolnay/install-buck2@latest
-      - name: Build example project (Ubuntu, macOS)
+      - name: Build example projects (Ubuntu, macOS)
         run: |-
-          cd example
-          reindeer --third-party-dir third-party buckify
+          pushd examples/01-intro
+          reindeer buckify
           buck2 run "//project:test"
+          popd
+
+          pushd examples/02-hybrid
+          reindeer buckify
+          buck2 run "//project:test"
+          cargo run -p project
+          popd
+
+          pushd examples/03-complex-fixups
+          reindeer buckify
+          buck2 run "//project:test"
+          popd
         if: matrix.os == 'ubuntu' || matrix.os == 'macos'
-      - name: Build example project (Windows)
+      - name: Build example projects (Windows)
         run: |-
-          cd example
-          & reindeer --third-party-dir third-party buckify
+          cd examples/01-intro
+          & reindeer buckify
+          & buck2 run "//project:test"
+
+          cd examples/02-hybrid
+          & reindeer buckify
+          & buck2 run "//project:test"
+          & cargo run -p project
+
+          cd examples/03-complex-fixups
+          & reindeer buckify
           & buck2 run "//project:test"
         if: matrix.os == 'windows'
